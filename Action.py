@@ -1,9 +1,6 @@
 import Lyrics
 import random
 
-def cupcakke():
-    return Lyrics.CupCakke[random.randint(0, len(Lyrics.CupCakke)-1)]
-
 def peter():
     return Lyrics.Astley[random.randint(0, len(Lyrics.Astley)-1)]
 

@@ -19,9 +19,7 @@ async def on_message(message):
     content = message.content.lower()
     response = None
 
-    if content.startswith('!cupcakke'):
-        response = Action.cupcakke()
-    elif content.startswith('!peter'):
+    if content.startswith('!peter'):
         response = Action.peter()
     elif content.startswith('!brian'):
         response = Action.brian()
