@@ -1,8 +1,8 @@
 import discord
 import asyncio
-import random
+import Action
 
-token = ''
+token = 'MzQwNjk2ODA1MTU3MzcxOTA3.DF6tNg.q3amSFyo47M8vFoOScvp6TOCrGU'
 
 client = discord.Client()
 
@@ -16,89 +16,31 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    CupCakke = ["Daddy better make me choke",
-                "My tunnel loves a deep throat",
-                "I want to eat your dick",
-                "Put it so deep, I can't speak a sentence",
-                "Mouth wide open like I was at the dentist",
-                "I'mma write my name on his dick",
-                "My pussy pink just like salami",
-                "My pussy mean, and it's clean",
-                "I'm not a squirter, I cream",
-                "Ballerina that dick when I spin",
-                "Just come put it down my butt",
-                "Ride the dick, get my nipples licked",
-                "Finna get the dick wet and firm",
-                "You better sweat me out of my perm"]
+    content = message.content.lower()
+    response = None
 
-    words = message.content.split()
+    if content.startswith('!cupcakke'):
+        response = Action.cupcakke()
+    elif content.startswith('!peter'):
+        response = Action.peter()
+    elif content.startswith('!brian'):
+        response = Action.brian()
+    elif content.startswith('!becca'):
+        response = Action.becca()
+    elif content.startswith('!david'):
+        response = Action.david()
+    elif content.startswith('!will'):
+        response = Action.will()
+    elif content.startswith('!calvin'):
+        response = Action.calvin()
+    elif content.startswith('!graham'):
+        response = Action.graham()
 
-    grahamFlag = False
-    brianFlag = False
-    beccaFlag = False
-    peterFlag = False
-    calvinFlag = False
-    willFlag = False
-
-    for word in words:
-
-        if word == "graham" or word == "Graham":
-            grahamFlag = True
-        if word == "calvin" or word == "Calvin":
-            calvinFlag = True
-        if word == "brian" or word == "Brian":
-            brianFlag = True
-        if word == "peter" or word == "Peter":
-            peterFlag = True
-        if word == "becca" or word == "Becca":
-            beccaFlag = True
-        if willFlag == "Will" or word == "will":
-            willFlag = True
-
-    if grahamFlag == True:
+    if response is not None:
         tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, "Good Shit")
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, "10/10")
+        await client.edit_message(tmp, response)
 
-    if calvinFlag == True:
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, "My pussy pink like salami")
-
-    if brianFlag == True:
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, "Mouth wide open like I was at the dentist")
-
-    if peterFlag == True:
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, "I'm not a squirter I cream")
-
-    if beccaFlag == True:
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, "Keep it smelling like baby wipes")
-    if willFlag == True:
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, "Ballerina that dick when I spin")
-
-    word = message.content.lower()
-
-    if word == '!cupcakke':
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, CupCakke[random.randint(0,len(CupCakke))])
-
-    #if message.content.startswith('!'):
-
-        #tmp = await client.send_message(message.channel, 'Calculating messages...')
-        #await client.edit_message(tmp,'sorry @chris#9244')
-
-        #counter = 0
-        #tmp = await client.send_message(message.channel, 'Calculating messages...')
-        #async for log in client.logs_from(message.channel, limit=100):
-        #    if log.author == message.author:
-        #        counter += 1
-
-        #await client.edit_message(tmp, 'You have {} messages.'.format(counter))
-    elif message.content.startswith('!sleep'):
+    if message.content.startswith('!sleep'):
         await asyncio.sleep(5)
         await client.send_message(message.channel, 'Done sleeping')
 
