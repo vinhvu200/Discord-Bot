@@ -1,8 +1,16 @@
 import discord
 import asyncio
 import Action
+import praw
 
-token = 'MzQwNjk2ODA1MTU3MzcxOTA3.DF6tNg.q3amSFyo47M8vFoOScvp6TOCrGU'
+f = open('Stuff.txt', 'r')
+token = f.readline()[:-1]
+client_id = f.readline()[:-1]
+client_secret = f.readline()[:-1]
+password = f.readline()[:-1]
+user_agent = 'stuff'
+username = f.readline()
+f.close()
 
 client = discord.Client()
 
@@ -33,6 +41,8 @@ async def on_message(message):
         response = Action.calvin()
     elif content.startswith('!graham'):
         response = Action.graham()
+    elif content.startswith('!interesting'):
+        response = Action.interesting(reddit)
 
     if response is not None:
         tmp = await client.send_message(message.channel, 'Calculating messages...')
@@ -42,5 +52,7 @@ async def on_message(message):
         await asyncio.sleep(5)
         await client.send_message(message.channel, 'Done sleeping')
 
+reddit = praw.Reddit(client_id=client_id, client_secret=client_secret,
+                         password=password, user_agent=user_agent,
+                         username=username)
 client.run(token)
-

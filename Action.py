@@ -1,6 +1,10 @@
 import Lyrics
 import random
 
+prefix_1 = "Did you know..."
+prefix_2 = "Bet you didn't know..."
+interesting_prefix = [prefix_1, prefix_2]
+
 def peter():
     return Lyrics.Astley[random.randint(0, len(Lyrics.Astley)-1)]
 
@@ -21,3 +25,15 @@ def calvin():
 
 def graham():
     return Lyrics.Hokey_pokey[random.randint(0, len(Lyrics.Hokey_pokey)-1)]
+
+def interesting(reddit):
+    count = 0
+    rand = random.randint(0, 29)
+    subreddit = reddit.subreddit('TodayILearned').hot(limit=30)
+
+    for submission in subreddit:
+        if count == rand:
+            prefix_index = count % 2
+            return submission.title.replace('TIL', interesting_prefix[prefix_index])
+            break
+        count = count + 1
