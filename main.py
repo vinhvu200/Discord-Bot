@@ -30,11 +30,20 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
+    for server in client.servers:
+        for channel in server.channels:
+            print(channel)
+
 @client.event
 async def on_message(message):
 
+    if message.author == client.user:
+        return
+
     content = message.content.lower()
     response = None
+
+    Action.record(posts, content, message.author, client.user)
 
     if content.startswith('!help'):
         response = Action.help()
@@ -56,28 +65,6 @@ async def on_message(message):
         response = Action.interesting(reddit)
     elif content.startswith('!record'):
         Action.record(posts, content, message.author)
-    elif content.startswith('!pull'):
-
-        start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-        end = datetime.datetime.utcnow()
-
-        time_post = posts.find({'time': {'$gte': start, '$lt': end}})
-
-        dictionary = dict()
-        total_post = 0
-        for post in time_post:
-            print(post)
-            name = post['author']
-            if name in dictionary:
-                dictionary[name] += 1
-            else:
-                dictionary[name] = 1
-            total_post += 1
-        print(dictionary)
-
-        for key in dictionary:
-            print(key)
-            print((round(dictionary[key] / total_post * 100, 2)))
     elif content.startswith('!activity day'):
         response = Action.activity_day(posts)
     elif content.startswith('!activity week'):

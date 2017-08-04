@@ -2,18 +2,21 @@ import Lyrics
 import random
 import datetime
 
+commands = {'!peter' : 'Lyrics',
+            '!brian' : 'Lyrics',
+            '!calvin' : 'Lyrics',
+            '!david' : 'Lyrics',
+            '!will' : 'Lyrics',
+            '!interesting' : 'Pulls up interesting facts for you',
+            '!activity day' : 'Shows activities in last 24 hours',
+            '!activity week' : 'Shows activities in last week'}
+
 def help():
 
-    return 'Commands:\n' \
-              '\t!peter -- Lyrics\n' \
-              '\t!brian -- Lyrics\n' \
-              '\t!calvin -- Lyrics\n' \
-              '\t!david -- Lyrics\n' \
-              '\t!will -- Lyrics\n' \
-              '\t!interesting -- Pulls up interesting facts for you\n' \
-              '\t!activity day -- Shows activity in last 24 hours\n' \
-              '\t!activity week -- Shows activity in last week\n' \
-              '\t!help'
+    message = 'Commands:\n'
+    for command in commands:
+        message += '\t{} : {}\n'.format(command, commands[command])
+    return message
 
 def peter():
     return Lyrics.Astley[random.randint(0, len(Lyrics.Astley)-1)]
@@ -45,7 +48,6 @@ def interesting(reddit):
     interesting_prefix = [prefix_1, prefix_2]
 
     subreddit = reddit.subreddit('TodayILearned').hot(limit=30)
-
     for submission in subreddit:
         if count == rand:
             prefix_index = count % 2
@@ -53,20 +55,21 @@ def interesting(reddit):
             break
         count = count + 1
 
-def record(posts, message, author):
+def record(posts, message, author, discord_bot):
 
-    time = datetime.datetime.utcnow()
-    print(datetime.datetime.utcnow())
+    if author == discord_bot:
+        return
+
+    for command in commands:
+        if message == command:
+            return
 
     post_data = {
         'content' : str(message),
         'author' : str(author),
         'time' : datetime.datetime.utcnow()
     }
-
-    print(post_data)
-    result = posts.insert_one(post_data)
-    #print('One post: {0}'.format(result.inserted_id))
+    posts.insert_one(post_data)
 
 def activity_day(posts):
 
@@ -88,14 +91,14 @@ def activity_day(posts):
     for key in dictionary:
         name = str(key)
         percentage = round(dictionary[key] / total_post * 100, 2)
-        message += '\t{} : {}\n'.format(name, percentage)
+        message += '\t{} : {}%\n'.format(name, percentage)
 
     return message
 
 def activity_week(posts):
+
     start = datetime.datetime.utcnow() - datetime.timedelta(days=7)
     end = datetime.datetime.utcnow()
-
     time_post = posts.find({'time': {'$gte': start, '$lt': end}})
 
     dictionary = dict()
@@ -112,6 +115,6 @@ def activity_week(posts):
     for key in dictionary:
         name = key
         percentage = round(dictionary[key] / total_post * 100, 2)
-        message += '\t{} : {}\n'.format(name, percentage)
+        message += '\t{} : {}%\n'.format(name, percentage)
 
     return message
