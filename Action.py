@@ -5,12 +5,14 @@ import datetime
 def help():
 
     return 'Commands:\n' \
-              '\t!peter\n' \
-              '\t!brian\n' \
-              '\t!calvin\n' \
-              '\t!david\n' \
-              '\t!will\n' \
-              '\t!interesting\n' \
+              '\t!peter -- Lyrics\n' \
+              '\t!brian -- Lyrics\n' \
+              '\t!calvin -- Lyrics\n' \
+              '\t!david -- Lyrics\n' \
+              '\t!will -- Lyrics\n' \
+              '\t!interesting -- Pulls up interesting facts for you\n' \
+              '\t!activity day -- Shows activity in last 24 hours\n' \
+              '\t!activity week -- Shows activity in last week\n' \
               '\t!help'
 
 def peter():
@@ -53,16 +55,63 @@ def interesting(reddit):
 
 def record(posts, message, author):
 
-    time = datetime.datetime.now()
-    new_time = time.strftime('%Y %m %d %H %M')
-    #reformatted_time = datetime.datetime.strptime(new_time, '%Y %m %d %H %M')
+    time = datetime.datetime.utcnow()
+    print(datetime.datetime.utcnow())
 
     post_data = {
         'content' : str(message),
         'author' : str(author),
-        'time' : new_time
+        'time' : datetime.datetime.utcnow()
     }
 
     print(post_data)
     result = posts.insert_one(post_data)
     #print('One post: {0}'.format(result.inserted_id))
+
+def activity_day(posts):
+
+    start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+    end = datetime.datetime.utcnow()
+    time_post = posts.find({'time': {'$gte': start, '$lt': end}})
+
+    dictionary = dict()
+    total_post = 0
+    for post in time_post:
+        name = post['author']
+        if name in dictionary:
+            dictionary[name] += 1
+        else:
+            dictionary[name] = 1
+        total_post += 1
+
+    message = 'Activities in last day:\n'
+    for key in dictionary:
+        name = str(key)
+        percentage = round(dictionary[key] / total_post * 100, 2)
+        message += '\t{} : {}\n'.format(name, percentage)
+
+    return message
+
+def activity_week(posts):
+    start = datetime.datetime.utcnow() - datetime.timedelta(days=7)
+    end = datetime.datetime.utcnow()
+
+    time_post = posts.find({'time': {'$gte': start, '$lt': end}})
+
+    dictionary = dict()
+    total_post = 0
+    for post in time_post:
+        name = post['author']
+        if name in dictionary:
+            dictionary[name] += 1
+        else:
+            dictionary[name] = 1
+        total_post += 1
+
+    message = 'Activities in last week:\n'
+    for key in dictionary:
+        name = key
+        percentage = round(dictionary[key] / total_post * 100, 2)
+        message += '\t{} : {}\n'.format(name, percentage)
+
+    return message

@@ -57,11 +57,31 @@ async def on_message(message):
     elif content.startswith('!record'):
         Action.record(posts, content, message.author)
     elif content.startswith('!pull'):
-        user = ''
-        vinhs_post = posts.find_one({'author': user})
-        time = vinhs_post['time']
-        print(time)
-        #reformatted_time = datetime.datetime.strptime(time, '%Y %m %d %H %M')
+
+        start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        end = datetime.datetime.utcnow()
+
+        time_post = posts.find({'time': {'$gte': start, '$lt': end}})
+
+        dictionary = dict()
+        total_post = 0
+        for post in time_post:
+            print(post)
+            name = post['author']
+            if name in dictionary:
+                dictionary[name] += 1
+            else:
+                dictionary[name] = 1
+            total_post += 1
+        print(dictionary)
+
+        for key in dictionary:
+            print(key)
+            print((round(dictionary[key] / total_post * 100, 2)))
+    elif content.startswith('!activity day'):
+        response = Action.activity_day(posts)
+    elif content.startswith('!activity week'):
+        response = Action.activity_week(posts)
 
     if response is not None:
         tmp = await client.send_message(message.channel, 'Calculating messages...')
