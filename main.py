@@ -1,7 +1,6 @@
 import discord
 import Action
 import praw
-import datetime
 from pymongo import MongoClient
 
 # Getting credentials
@@ -30,9 +29,9 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
-    for server in client.servers:
-        for channel in server.channels:
-            print(channel)
+    #for server in client.servers:
+    #    for channel in server.channels:
+    #        print(channel)
 
 @client.event
 async def on_message(message):

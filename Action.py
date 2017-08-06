@@ -75,22 +75,22 @@ def activity_day(posts):
 
     start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
     end = datetime.datetime.utcnow()
-    time_post = posts.find({'time': {'$gte': start, '$lt': end}})
+    time_posts = posts.find({'time': {'$gte': start, '$lt': end}})
 
     dictionary = dict()
-    total_post = 0
-    for post in time_post:
+    total_posts = 0
+    for post in time_posts:
         name = post['author']
         if name in dictionary:
             dictionary[name] += 1
         else:
             dictionary[name] = 1
-        total_post += 1
+        total_posts += 1
 
     message = 'Activities in last day:\n'
     for key in dictionary:
         name = str(key)
-        percentage = round(dictionary[key] / total_post * 100, 2)
+        percentage = round(dictionary[key] / total_posts * 100, 2)
         message += '\t{} : {}%\n'.format(name, percentage)
 
     return message
@@ -99,22 +99,22 @@ def activity_week(posts):
 
     start = datetime.datetime.utcnow() - datetime.timedelta(days=7)
     end = datetime.datetime.utcnow()
-    time_post = posts.find({'time': {'$gte': start, '$lt': end}})
+    time_posts = posts.find({'time': {'$gte': start, '$lt': end}})
 
     dictionary = dict()
-    total_post = 0
-    for post in time_post:
+    total_posts = 0
+    for post in time_posts:
         name = post['author']
         if name in dictionary:
             dictionary[name] += 1
         else:
             dictionary[name] = 1
-        total_post += 1
+        total_posts += 1
 
     message = 'Activities in last week:\n'
     for key in dictionary:
         name = key
-        percentage = round(dictionary[key] / total_post * 100, 2)
+        percentage = round(dictionary[key] / total_posts * 100, 2)
         message += '\t{} : {}%\n'.format(name, percentage)
 
     return message
