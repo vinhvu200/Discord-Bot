@@ -2,6 +2,15 @@ import Lyrics
 import random
 import datetime
 
+commands = {'!peter' : 'Lyrics',
+            '!brian' : 'Lyrics',
+            '!calvin' : 'Lyrics',
+            '!david' : 'Lyrics',
+            '!will' : 'Lyrics',
+            '!interesting' : 'Pulls up interesting facts for you',
+            '!activity day' : 'Shows activities in last 24 hours',
+            '!activity week' : 'Shows activities in last week'}
+
 def help():
 
     return 'Commands:\n' \
@@ -56,10 +65,11 @@ def record(posts, message, author, discord_bot, channel):
     if author == discord_bot:
         return
 
+    for command in commands:
+        if message == command:
+            return
+
     try:
-        for command in commands:
-            if message == command:
-                return
 
         post_data = {
             'content' : str(message),
