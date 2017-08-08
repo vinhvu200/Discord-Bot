@@ -42,7 +42,7 @@ async def on_message(message):
     content = message.content.lower()
     response = None
 
-    Action.record(posts, content, message.author, client.user)
+    Action.record(posts, content, message.author, client.user, message.channel)
 
     if content.startswith('!help'):
         response = Action.help()
@@ -62,12 +62,12 @@ async def on_message(message):
         response = Action.graham()
     elif content.startswith('!interesting'):
         response = Action.interesting(reddit)
-    elif content.startswith('!record'):
-        Action.record(posts, content, message.author)
     elif content.startswith('!activity day'):
         response = Action.activity_day(posts)
     elif content.startswith('!activity week'):
         response = Action.activity_week(posts)
+    elif 'min sok' in content:
+        response = Action.min_sok()
 
     if response is not None:
         tmp = await client.send_message(message.channel, 'Calculating messages...')

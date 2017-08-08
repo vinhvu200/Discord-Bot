@@ -2,21 +2,17 @@ import Lyrics
 import random
 import datetime
 
-commands = {'!peter' : 'Lyrics',
-            '!brian' : 'Lyrics',
-            '!calvin' : 'Lyrics',
-            '!david' : 'Lyrics',
-            '!will' : 'Lyrics',
-            '!interesting' : 'Pulls up interesting facts for you',
-            '!activity day' : 'Shows activities in last 24 hours',
-            '!activity week' : 'Shows activities in last week'}
-
 def help():
 
-    message = 'Commands:\n'
-    for command in commands:
-        message += '\t{} : {}\n'.format(command, commands[command])
-    return message
+    return 'Commands:\n' \
+           '\t!peter : Lyrics\n' \
+           '\t!brian : Lyrics\n' \
+           '\t!calvin : Lyrics\n' \
+           '\t!david : Lyrics\n' \
+           '\t!will : Lyrics\n' \
+           '\t!interesting : Pulls up interesting facts for you\n' \
+           '\t!activity day : Shows activities in last 24 hours\n' \
+           '\t!activity week : Show activities in last week'
 
 def peter():
     return Lyrics.Astley[random.randint(0, len(Lyrics.Astley)-1)]
@@ -55,21 +51,25 @@ def interesting(reddit):
             break
         count = count + 1
 
-def record(posts, message, author, discord_bot):
+def record(posts, message, author, discord_bot, channel):
 
     if author == discord_bot:
         return
 
-    for command in commands:
-        if message == command:
-            return
+    try:
+        for command in commands:
+            if message == command:
+                return
 
-    post_data = {
-        'content' : str(message),
-        'author' : str(author),
-        'time' : datetime.datetime.utcnow()
-    }
-    posts.insert_one(post_data)
+        post_data = {
+            'content' : str(message),
+            'author' : str(author),
+            'time' : datetime.datetime.utcnow(),
+            'channel' : str(channel)
+        }
+        posts.insert_one(post_data)
+    except Exception:
+        pass
 
 def activity_day(posts):
 
@@ -99,22 +99,29 @@ def activity_week(posts):
 
     start = datetime.datetime.utcnow() - datetime.timedelta(days=7)
     end = datetime.datetime.utcnow()
-    time_posts = posts.find({'time': {'$gte': start, '$lt': end}})
-
+    message = 'Activities in last week:\n'
     dictionary = dict()
     total_posts = 0
-    for post in time_posts:
-        name = post['author']
-        if name in dictionary:
-            dictionary[name] += 1
-        else:
-            dictionary[name] = 1
-        total_posts += 1
 
-    message = 'Activities in last week:\n'
-    for key in dictionary:
-        name = key
-        percentage = round(dictionary[key] / total_posts * 100, 2)
-        message += '\t{} : {}%\n'.format(name, percentage)
+    try:
+        time_posts = posts.find({'time': {'$gte': start, '$lt': end}})
+        for post in time_posts:
+            name = post['author']
+            if name in dictionary:
+                dictionary[name] += 1
+            else:
+                dictionary[name] = 1
+            total_posts += 1
+
+        for key in dictionary:
+            name = key
+            percentage = round(dictionary[key] / total_posts * 100, 2)
+            message += '\t{} : {}%\n'.format(name, percentage)
+
+    except Exception:
+        pass
 
     return message
+
+def min_sok():
+    return "Vinh heard min sok"
