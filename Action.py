@@ -7,6 +7,7 @@ commands = {'!peter' : 'Lyrics',
             '!calvin' : 'Lyrics',
             '!david' : 'Lyrics',
             '!will' : 'Lyrics',
+            '!becca' : 'Lyris',
             '!interesting' : 'Pulls up interesting facts for you',
             '!activity day' : 'Shows activities in last 24 hours',
             '!activity week' : 'Shows activities in last week'}
@@ -98,10 +99,9 @@ def activity_day(posts):
         total_posts += 1
 
     message = 'Activities in last day:\n'
-    for key in dictionary:
-        name = str(key)
-        percentage = round(dictionary[key] / total_posts * 100, 2)
-        message += '\t{} : {}%\n'.format(name, percentage)
+    sorted_activities = [(k, dictionary[k]) for k in sorted(dictionary, key=dictionary.get, reverse=True)]
+    for name, percentage in sorted_activities:
+        message += '\t{}   --   {}%\n'.format(name, percentage)
 
     return message
 
@@ -123,10 +123,9 @@ def activity_week(posts):
                 dictionary[name] = 1
             total_posts += 1
 
-        for key in dictionary:
-            name = key
-            percentage = round(dictionary[key] / total_posts * 100, 2)
-            message += '\t{} : {}%\n'.format(name, percentage)
+        sorted_activities = [(k, dictionary[k]) for k in sorted(dictionary, key=dictionary.get, reverse=True)]
+        for name, percentage in sorted_activities:
+            message += '\t{}   --   {}%\n'.format(name, percentage)
 
     except Exception:
         pass

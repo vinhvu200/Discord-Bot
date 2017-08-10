@@ -10,7 +10,8 @@ client_id = f.readline()[:-1]
 client_secret = f.readline()[:-1]
 password = f.readline()[:-1]
 user_agent = 'stuff'
-username = f.readline()
+username = f.readline()[:-1]
+link = f.readline()
 f.close()
 
 # Getting client
@@ -18,7 +19,7 @@ reddit = praw.Reddit(client_id=client_id, client_secret=client_secret,
                      password=password, user_agent=user_agent,
                      username=username)
 client = discord.Client()
-client_2 = MongoClient()
+client_2 = MongoClient(link)
 db = client_2.pymongo_test
 posts = db.posts
 
