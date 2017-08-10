@@ -10,7 +10,8 @@ commands = {'!peter' : 'Lyrics',
             '!becca' : 'Lyris',
             '!interesting' : 'Pulls up interesting facts for you',
             '!activity day' : 'Shows activities in last 24 hours',
-            '!activity week' : 'Shows activities in last week'}
+            '!activity week' : 'Shows activities in last week',
+            '!detail' : ''}
 
 def help():
 
@@ -134,3 +135,69 @@ def activity_week(posts):
 
 def min_sok():
     return "Vinh heard min sok"
+
+def detail_day(posts):
+
+    end_time = datetime.datetime.utcnow()
+    hour_count = end_time.hour
+    minutes = end_time.minute
+    message_count = 0
+    start_time = end_time - datetime.timedelta(minutes=minutes)
+
+    try:
+        query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
+        for result in query_results:
+            message_count += 1
+
+        print('Hour: {} -- Message Count: {}'.format(start_time.hour, message_count))
+
+        end_time = end_time - datetime.timedelta(minutes=end_time.minute)
+        start_time = start_time - datetime.timedelta(hours=1)
+
+        for x in range(0, hour_count):
+            message_count = 0
+            query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}, 'author': 'vinh#9804'})
+            for result in query_results:
+                message_count += 1
+
+            print('Hour: {} -- Message Count: {}'.format(start_time.hour, message_count))
+
+            end_time = end_time - datetime.timedelta(hours=1)
+            start_time = start_time - datetime.timedelta(hours=1)
+    except Exception:
+        pass
+
+    return None
+
+def detail_week(posts):
+
+    message = 'Message counts per day\n'
+    end_time = datetime.datetime.utcnow()
+    start_time = end_time - datetime.timedelta(hours=end_time.hour, minutes=end_time.minute)
+    message_count = 0
+    day = 7
+
+    try:
+        query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
+        for result in query_results:
+            message_count += 1
+        print('Day {} -- Message Count : {}'.format(day, message_count))
+        message += '\tDay {}  --  {}\n'.format(day, message_count)
+        day -= 1
+
+        while day > 0:
+            message_count = 0
+            end_time = end_time - datetime.timedelta(days=1)
+            start_time = start_time - datetime.timedelta(days=1)
+
+            query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
+
+            for result in query_results:
+                message_count += 1
+            print('Day {} -- Message Count : {}'.format(day, message_count))
+            message += '\tDay {}  --  {}\n'.format(day, message_count)
+            day -= 1
+    except Exception:
+        pass
+
+    return message
