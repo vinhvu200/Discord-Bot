@@ -68,7 +68,8 @@ async def on_message(message):
     elif content.startswith('!activity week'):
         response = Action.activity_week(posts)
     elif content.startswith('!detail day'):
-        response = Action.detail_day(posts)
+        #response = Action.detail_day(posts)
+        response = Action.rand(posts)
     elif content.startswith('!detail week'):
         response = Action.detail_week(posts)
     elif 'min sok' in content:

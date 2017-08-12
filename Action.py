@@ -11,7 +11,8 @@ commands = {'!peter' : 'Lyrics',
             '!interesting' : 'Pulls up interesting facts for you',
             '!activity day' : 'Shows activities in last 24 hours',
             '!activity week' : 'Shows activities in last week',
-            '!detail' : ''}
+            '!detail day' : '',
+            '!detail week' : ''}
 
 def help():
 
@@ -87,7 +88,7 @@ def activity_day(posts):
 
     start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
     end = datetime.datetime.utcnow()
-    time_posts = posts.find({'time': {'$gte': start, '$lt': end}})
+    time_posts = posts.find({'time': {'$gte': start, '$lt': end}, 'channel': 'skype'})
 
     dictionary = dict()
     total_posts = 0
@@ -102,7 +103,7 @@ def activity_day(posts):
     message = 'Activities in last day:\n'
     sorted_activities = [(k, dictionary[k]) for k in sorted(dictionary, key=dictionary.get, reverse=True)]
     for name, percentage in sorted_activities:
-        message += '\t{}   --   {}%\n'.format(name, percentage)
+        message += '\t{}   --   {}%\n'.format(name, round(percentage / total_posts * 100, 2))
 
     return message
 
@@ -115,7 +116,7 @@ def activity_week(posts):
     total_posts = 0
 
     try:
-        time_posts = posts.find({'time': {'$gte': start, '$lt': end}})
+        time_posts = posts.find({'time': {'$gte': start, '$lt': end}, 'channel': 'skype'})
         for post in time_posts:
             name = post['author']
             if name in dictionary:
@@ -126,7 +127,7 @@ def activity_week(posts):
 
         sorted_activities = [(k, dictionary[k]) for k in sorted(dictionary, key=dictionary.get, reverse=True)]
         for name, percentage in sorted_activities:
-            message += '\t{}   --   {}%\n'.format(name, percentage)
+            message += '\t{}   --   {}%\n'.format(name, round(percentage / total_posts * 100, 2))
 
     except Exception:
         pass
@@ -136,56 +137,99 @@ def activity_week(posts):
 def min_sok():
     return "Vinh heard min sok"
 
-def detail_day(posts):
+def rand(posts):
 
-    end_time = datetime.datetime.utcnow()
-    hour_count = end_time.hour
-    minutes = end_time.minute
-    message_count = 0
-    start_time = end_time - datetime.timedelta(minutes=minutes)
+    real_end_time = datetime.datetime.utcnow()
+    real_start_time = real_end_time - datetime.timedelta(minutes=real_end_time.minute)
+
+    adjusted_end_time = datetime.datetime.utcnow()
+    adjusted_end_time = adjusted_end_time - datetime.timedelta(hours=7)
+    adjusted_start_time = adjusted_end_time - datetime.timedelta(minutes=adjusted_end_time.minute)
+    message = 'Message count per hour for {} . {} . {}\n'.format(adjusted_start_time.month,
+                                                                 adjusted_start_time.day,
+                                                                 adjusted_start_time.year)
 
     try:
-        query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
+        message_count = 0
+        query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time}})
         for result in query_results:
             message_count += 1
+        message += '\t{}:00   ---   {}\n'.format(adjusted_start_time.hour, message_count)
 
-        print('Hour: {} -- Message Count: {}'.format(start_time.hour, message_count))
+        while adjusted_start_time.hour > 0:
+            adjusted_end_time = adjusted_end_time - datetime.timedelta(hours=1)
+            adjusted_start_time = adjusted_start_time - datetime.timedelta(hours=1)
+            real_start_time = real_start_time - datetime.timedelta(hours=1)
+            real_end_time = real_end_time - datetime.timedelta(hours=1)
 
-        end_time = end_time - datetime.timedelta(minutes=end_time.minute)
-        start_time = start_time - datetime.timedelta(hours=1)
-
-        for x in range(0, hour_count):
             message_count = 0
-            query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}, 'author': 'vinh#9804'})
+            query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time}})
             for result in query_results:
                 message_count += 1
-
-            print('Hour: {} -- Message Count: {}'.format(start_time.hour, message_count))
-
-            end_time = end_time - datetime.timedelta(hours=1)
-            start_time = start_time - datetime.timedelta(hours=1)
+            message += '\t{}:00   ---   {}\n'.format(adjusted_start_time.hour, message_count)
     except Exception:
         pass
 
-    return None
+    return message
+
+def detail_day(posts):
+
+    pacific_hour_conversion = 7
+    end_time = datetime.datetime.utcnow()
+    start_time = end_time - datetime.timedelta(minutes=end_time.minute)
+    hour_count = end_time.hour - pacific_hour_conversion
+    message = 'Message count per hour for : {}\n'.format(end_time.month,
+                                                         end_time.day,
+                                                         end_time.year)
+
+    print('end time hours {}'.format(end_time.hour))
+    print('end time {}'.format(end_time))
+
+    try:
+        message_count = 0
+        query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
+        for result in query_results:
+            message_count += 1
+        print('hour {}   --   {}'.format(start_time.hour - pacific_hour_conversion,
+                                         message_count))
+        hour_count -= 1
+
+        while hour_count >= 0:
+            message_count = 0
+            end_time = end_time - datetime.timedelta(hours=1)
+            start_time = start_time - datetime.timedelta(hours=1)
+
+            query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
+            for result in query_results:
+                message_count += 1
+            print('hour {}   --   {}'.format(start_time.hour - pacific_hour_conversion,
+                                             message_count))
+            hour_count -= 1
+
+    except Exception:
+        pass
+
+    return message
 
 def detail_week(posts):
 
+    pacific_hour_conversion = 7
     message = 'Message counts per day\n'
     end_time = datetime.datetime.utcnow()
-    start_time = end_time - datetime.timedelta(hours=end_time.hour, minutes=end_time.minute)
+    start_time = end_time - datetime.timedelta(hours=end_time.hour-pacific_hour_conversion,
+                                               minutes=end_time.minute)
     message_count = 0
-    day = 7
+    day = 1
 
     try:
         query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
         for result in query_results:
             message_count += 1
-        print('Day {} -- Message Count : {}'.format(day, message_count))
-        message += '\tDay {}  --  {}\n'.format(day, message_count)
-        day -= 1
+        message += '\t{} . {} . {}   --   {}\n'.format(start_time.month, start_time.day,
+                                               start_time.year, message_count)
+        day += 1
 
-        while day > 0:
+        while day <= 7:
             message_count = 0
             end_time = end_time - datetime.timedelta(days=1)
             start_time = start_time - datetime.timedelta(days=1)
@@ -194,9 +238,9 @@ def detail_week(posts):
 
             for result in query_results:
                 message_count += 1
-            print('Day {} -- Message Count : {}'.format(day, message_count))
-            message += '\tDay {}  --  {}\n'.format(day, message_count)
-            day -= 1
+            message += '\t{} . {} . {}   --   {}\n'.format(start_time.month, start_time.day,
+                                                   start_time.year, message_count)
+            day += 1
     except Exception:
         pass
 
