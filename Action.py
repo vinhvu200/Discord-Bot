@@ -7,7 +7,8 @@ commands = {'!peter' : 'Lyrics',
             '!calvin' : 'Lyrics',
             '!david' : 'Lyrics',
             '!will' : 'Lyrics',
-            '!becca' : 'Lyris',
+            '!becca' : 'Lyrics',
+            '!graham' : 'Lyrics',
             '!interesting' : 'Pulls up interesting facts for you',
             '!activity day' : 'Shows activities in last 24 hours',
             '!activity week' : 'Shows activities in last week',
@@ -17,35 +18,39 @@ commands = {'!peter' : 'Lyrics',
 def help():
 
     return 'Commands:\n' \
-           '\t!peter : Lyrics\n' \
-           '\t!brian : Lyrics\n' \
-           '\t!calvin : Lyrics\n' \
-           '\t!david : Lyrics\n' \
-           '\t!will : Lyrics\n' \
-           '\t!interesting : Pulls up interesting facts for you\n' \
-           '\t!activity day : Shows activities in last 24 hours\n' \
-           '\t!activity week : Show activities in last week'
+           '\t!peter : Lyrical Genius\n' \
+           '\t!brian : Lyrical Genius\n' \
+           '\t!becca : Lyrical Genius\n' \
+           '\t!calvin : Lyrical Genius\n' \
+           '\t!david : Lyrical Genius\n' \
+           '\t!will : Lyrical Genius\n' \
+           '\t!graham : Lyrical Genius\n' \
+           '\t!interesting : Interesting facts for you\n' \
+           '\t!activity day : Activities percentage in last 24 hours\n' \
+           '\t!activity week : Activities percentage in last week\n' \
+           '\t!detail day : Activities by hours of that day\n' \
+           '\t!detail week : Activities by days of the last week'
 
 def peter():
-    return Lyrics.Astley[random.randint(0, len(Lyrics.Astley)-1)]
+    return Lyrics.Peter[random.randint(0, len(Lyrics.Peter)-1)]
 
 def brian():
-    return Lyrics.Lazytown[random.randint(0, len(Lyrics.Lazytown)-1)]
+    return Lyrics.Brian[random.randint(0, len(Lyrics.Brian)-1)]
 
 def becca():
-    return Lyrics.NSN[random.randint(0, len(Lyrics.NSN)-1)]
+    return Lyrics.Becca[random.randint(0, len(Lyrics.Becca)-1)]
 
 def will():
-    return Lyrics.CupCakke[random.randint(0, len(Lyrics.CupCakke)-1)]
+    return Lyrics.Will[random.randint(0, len(Lyrics.Will)-1)]
 
 def david():
-    return Lyrics.Spongebob[random.randint(0, len(Lyrics.Spongebob)-1)]
+    return Lyrics.David[random.randint(0, len(Lyrics.David)-1)]
 
 def calvin():
-    return Lyrics.Desiigner[random.randint(0, len(Lyrics.Desiigner)-1)]
+    return Lyrics.Calvin[random.randint(0, len(Lyrics.Calvin)-1)]
 
 def graham():
-    return Lyrics.Hokey_pokey[random.randint(0, len(Lyrics.Hokey_pokey)-1)]
+    return Lyrics.Graham[random.randint(0, len(Lyrics.Graham)-1)]
 
 def interesting(reddit):
 
@@ -82,7 +87,7 @@ def record(posts, message, author, discord_bot, channel):
         }
         posts.insert_one(post_data)
     except Exception:
-        pass
+        return 'Vinhs an idiot. Command failed'
 
 def activity_day(posts):
 
@@ -130,14 +135,14 @@ def activity_week(posts):
             message += '\t{}   --   {}%\n'.format(name, round(percentage / total_posts * 100, 2))
 
     except Exception:
-        pass
+        return 'Vinhs an idiot. Command failed'
 
     return message
 
 def min_sok():
     return "Vinh heard min sok"
 
-def rand(posts):
+def detail_day(posts):
 
     real_end_time = datetime.datetime.utcnow()
     real_start_time = real_end_time - datetime.timedelta(minutes=real_end_time.minute)
@@ -151,7 +156,8 @@ def rand(posts):
 
     try:
         message_count = 0
-        query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time}})
+        query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time},
+                                    'channel': 'skype'})
         for result in query_results:
             message_count += 1
         message += '\t{}:00   ---   {}\n'.format(adjusted_start_time.hour, message_count)
@@ -168,80 +174,45 @@ def rand(posts):
                 message_count += 1
             message += '\t{}:00   ---   {}\n'.format(adjusted_start_time.hour, message_count)
     except Exception:
-        pass
-
-    return message
-
-def detail_day(posts):
-
-    pacific_hour_conversion = 7
-    end_time = datetime.datetime.utcnow()
-    start_time = end_time - datetime.timedelta(minutes=end_time.minute)
-    hour_count = end_time.hour - pacific_hour_conversion
-    message = 'Message count per hour for : {}\n'.format(end_time.month,
-                                                         end_time.day,
-                                                         end_time.year)
-
-    print('end time hours {}'.format(end_time.hour))
-    print('end time {}'.format(end_time))
-
-    try:
-        message_count = 0
-        query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
-        for result in query_results:
-            message_count += 1
-        print('hour {}   --   {}'.format(start_time.hour - pacific_hour_conversion,
-                                         message_count))
-        hour_count -= 1
-
-        while hour_count >= 0:
-            message_count = 0
-            end_time = end_time - datetime.timedelta(hours=1)
-            start_time = start_time - datetime.timedelta(hours=1)
-
-            query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
-            for result in query_results:
-                message_count += 1
-            print('hour {}   --   {}'.format(start_time.hour - pacific_hour_conversion,
-                                             message_count))
-            hour_count -= 1
-
-    except Exception:
-        pass
+        return 'Vinhs an idiot. Command failed'
 
     return message
 
 def detail_week(posts):
 
-    pacific_hour_conversion = 7
-    message = 'Message counts per day\n'
-    end_time = datetime.datetime.utcnow()
-    start_time = end_time - datetime.timedelta(hours=end_time.hour-pacific_hour_conversion,
-                                               minutes=end_time.minute)
-    message_count = 0
-    day = 1
+    message = 'Message count in the last week\n'
+    adjusted_end_time = datetime.datetime.utcnow() - datetime.timedelta(hours=7)
+    adjusted_start_time = adjusted_end_time - datetime.timedelta(hours=adjusted_end_time.hour)
+    real_end_time = datetime.datetime.utcnow()
+    real_start_time = real_end_time - datetime.timedelta(hours=adjusted_end_time.hour)
 
     try:
-        query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
-        for result in query_results:
+        message_count = 0
+        query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time},
+                                    'channel': 'skype'})
+        for results in query_results:
             message_count += 1
-        message += '\t{} . {} . {}   --   {}\n'.format(start_time.month, start_time.day,
-                                               start_time.year, message_count)
-        day += 1
+        message += '\t{} . {} . {}   --   {}\n'.format(adjusted_start_time.month,
+                                                   adjusted_start_time.day,
+                                                   adjusted_start_time.year,
+                                                   message_count)
 
-        while day <= 7:
+        for x in range(0,6):
             message_count = 0
-            end_time = end_time - datetime.timedelta(days=1)
-            start_time = start_time - datetime.timedelta(days=1)
+            adjusted_end_time = adjusted_end_time - datetime.timedelta(days=1)
+            adjusted_start_time = adjusted_start_time - datetime.timedelta(days=1)
+            real_end_time = real_end_time - datetime.timedelta(days=1)
+            real_start_time = real_start_time - datetime.timedelta(days=1)
 
-            query_results = posts.find({'time': {'$gte': start_time, '$lt': end_time}})
-
-            for result in query_results:
+            query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time},
+                                        'channel': 'skype'})
+            for results in query_results:
                 message_count += 1
-            message += '\t{} . {} . {}   --   {}\n'.format(start_time.month, start_time.day,
-                                                   start_time.year, message_count)
-            day += 1
+            message += '\t{} . {} . {}   --   {}\n'.format(adjusted_start_time.month,
+                                                         adjusted_start_time.day,
+                                                         adjusted_start_time.year,
+                                                         message_count)
     except Exception:
-        pass
+        return 'Vinhs an idiot. Command failed'
 
     return message
