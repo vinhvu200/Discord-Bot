@@ -73,6 +73,12 @@ async def on_message(message):
         response = Action.detail_week(posts)
     elif 'min sok' in content:
         response = Action.min_sok()
+    elif 'good shit' in content:
+        response = Action.good_shit()
+    elif 'dank' in content:
+        response = Action.dank()
+    elif content.startswith('!test'):
+        response = Action.test(posts)
 
     if response is not None:
         tmp = await client.send_message(message.channel, 'Calculating messages...')
