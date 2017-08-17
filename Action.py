@@ -1,6 +1,7 @@
 import Lyrics
 import random
 import datetime
+from collections import OrderedDict
 
 commands = {'!peter' : 'Lyrics',
             '!brian' : 'Lyrics',
@@ -91,55 +92,75 @@ def record(posts, message, author, discord_bot, channel):
 
 def activity_day(posts):
 
-    end = datetime.datetime.utcnow()
-    start = end - datetime.timedelta(hours=end.hour, minutes=end.minute)
+    utc_end = datetime.datetime.utcnow()
+    real_end = utc_end - datetime.timedelta(hours=7)
+
+    utc_start = utc_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
+    real_start = real_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
 
     try:
-        time_posts = posts.find({'time': {'$gte': start, '$lt': end}, 'channel': 'skype'})
-        dictionary = dict()
-        total_posts = 0
-        for post in time_posts:
-            name = post['author']
-            if name in dictionary:
-                dictionary[name] += 1
-            else:
-                dictionary[name] = 1
-            total_posts += 1
-
-        message = 'Activities in last day:\n'
-        sorted_activities = [(k, dictionary[k]) for k in sorted(dictionary, key=dictionary.get, reverse=True)]
-        for name, percentage in sorted_activities:
-            message += '\t{}   --   {}%\n'.format(name, round(percentage / total_posts * 100, 2))
+        query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
-        return 'Vinhs an idiot. Command failed'
+        return 'Could not retrieve from database. Vinh failed you'
 
+    message_count = 0
+    activities = dict()
+
+    for query in query_results:
+        message_count += 1
+        name = query['author']
+        if name in activities:
+            activities[name] += 1
+        else:
+            activities[name] = 1
+
+    for activity in activities:
+        activities[activity] = activities[activity] / message_count * 100
+    sorted_activities = [(activity, activities[activity]) for activity in
+                         sorted(activities, key=activities.get, reverse=True)]
+
+    message = 'Activities for {} . {} . {}:\n' \
+              '----------------------------\n'.format(real_start.month,
+                                                      real_start.day,
+                                                      real_start.year)
+    for name, percentage in sorted_activities:
+        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
     return message
 
 def activity_week(posts):
 
-    start = datetime.datetime.utcnow() - datetime.timedelta(days=7)
-    end = datetime.datetime.utcnow()
-    message = 'Activities in last week:\n'
-    dictionary = dict()
-    total_posts = 0
+    utc_end = datetime.datetime.utcnow()
+    real_end = utc_end - datetime.timedelta(hours=7)
+
+    utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
+    real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
 
     try:
-        time_posts = posts.find({'time': {'$gte': start, '$lt': end}, 'channel': 'skype'})
-        for post in time_posts:
-            name = post['author']
-            if name in dictionary:
-                dictionary[name] += 1
-            else:
-                dictionary[name] = 1
-            total_posts += 1
-
-        sorted_activities = [(k, dictionary[k]) for k in sorted(dictionary, key=dictionary.get, reverse=True)]
-        for name, percentage in sorted_activities:
-            message += '\t{}   --   {}%\n'.format(name, round(percentage / total_posts * 100, 2))
-
+        query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
-        return 'Vinhs an idiot. Command failed'
+        return 'Could not retrieve from database. Vinh failed you'
 
+    message_count = 0
+    activities = dict()
+    for query in query_results:
+        message_count += 1
+        name = query['author']
+        if name in activities:
+            activities[name] += 1
+        else:
+            activities[name] = 1
+
+    for activity in activities:
+        activities[activity] = activities[activity] / message_count * 100
+    sorted_activities = [(activity, activities[activity]) for activity in
+                         sorted(activities, key=activities.get, reverse=True)]
+
+    message = 'Activities between {}.{}.{} -- {}.{}.{}:\n' \
+              '----------------------------\n'.format(real_start.month, real_start.day,
+                                                      real_start.year, real_end.month,
+                                                      real_end.day, real_end.year)
+    for name, percentage in sorted_activities:
+        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
     return message
 
 def min_sok():
@@ -152,6 +173,7 @@ def good_shit():
     return '10/10'
 
 def detail_day(posts):
+
     utc_end = datetime.datetime.utcnow()
     real_end = utc_end - datetime.timedelta(hours=7)
 
@@ -159,7 +181,6 @@ def detail_day(posts):
     real_start = real_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
 
     messages = [0] * 24
-
     try:
         query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
@@ -187,39 +208,37 @@ def detail_day(posts):
 
 def detail_week(posts):
 
-    message = 'Message count in the last week\n'
-    adjusted_end_time = datetime.datetime.utcnow() - datetime.timedelta(hours=7)
-    adjusted_start_time = adjusted_end_time - datetime.timedelta(hours=adjusted_end_time.hour)
-    real_end_time = datetime.datetime.utcnow()
-    real_start_time = real_end_time - datetime.timedelta(hours=adjusted_end_time.hour)
+    utc_end = datetime.datetime.utcnow()
+    real_end = utc_end - datetime.timedelta(hours=7)
+
+    utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
+    real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
+
+    activities = OrderedDict()
 
     try:
-        message_count = 0
-        query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time},
-                                    'channel': 'skype'})
-        for results in query_results:
-            message_count += 1
-        message += '\t{} . {} . {}   --   {}\n'.format(adjusted_start_time.month,
-                                                   adjusted_start_time.day,
-                                                   adjusted_start_time.year,
-                                                   message_count)
-
-        for x in range(0,6):
-            message_count = 0
-            adjusted_end_time = adjusted_end_time - datetime.timedelta(days=1)
-            adjusted_start_time = adjusted_start_time - datetime.timedelta(days=1)
-            real_end_time = real_end_time - datetime.timedelta(days=1)
-            real_start_time = real_start_time - datetime.timedelta(days=1)
-
-            query_results = posts.find({'time': {'$gte': real_start_time, '$lt': real_end_time},
-                                        'channel': 'skype'})
-            for results in query_results:
-                message_count += 1
-            message += '\t{} . {} . {}   --   {}\n'.format(adjusted_start_time.month,
-                                                         adjusted_start_time.day,
-                                                         adjusted_start_time.year,
-                                                         message_count)
+        query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
-        return 'Vinhs an idiot. Command failed'
+        return 'Could not retrieve from database. Vinh failed you'
+
+    for query in query_results:
+
+        time = query['time']
+        time = time - datetime.timedelta(hours=7)
+        day = '{} {} {}'.format(time.month, time.day, time.year)
+        string_day = datetime.datetime.strptime(day, '%m %d %Y').strftime('%A')
+
+        if string_day in activities:
+            activities[string_day] += 1
+        else:
+            activities[string_day] = 1
+
+    message = 'Message count: {}.{}.{} -- {}.{}.{}\n' \
+              '------------------------------\n'.format(real_start.month, real_start.day,
+                                                        real_start.year, real_end.month,
+                                                        real_end.day, real_end.year)
+
+    for day in activities:
+        message += '{} -- {}\n'.format(day, activities[day])
 
     return message
