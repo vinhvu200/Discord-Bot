@@ -193,7 +193,7 @@ def detail_day(posts):
         if query['time'].hour - 7 >= 0:
             adjusted = query['time'].hour - 7
         else:
-            adjusted = 24 - query['time'].hour - 7
+            adjusted = 24 + (query['time'].hour - 7)
 
         messages[adjusted] += 1
         message_count += 1
