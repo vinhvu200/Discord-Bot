@@ -20,8 +20,8 @@ reddit = praw.Reddit(client_id=client_id, client_secret=client_secret,
                      username=username)
 client = discord.Client()
 client_2 = MongoClient(link)
-db = client_2.pymongo_test
-posts = db.posts
+db = client_2.discord_data
+messages = db.messages
 
 @client.event
 async def on_ready():
@@ -43,7 +43,7 @@ async def on_message(message):
     content = message.content.lower()
     response = None
 
-    Action.record(posts, content, message.author, client.user, message.channel)
+    Action.record(messages, content, message.author, client.user, message.channel)
 
     if content.startswith('!help'):
         response = Action.help()
@@ -64,21 +64,19 @@ async def on_message(message):
     elif content.startswith('!interesting'):
         response = Action.interesting(reddit)
     elif content.startswith('!activity day'):
-        response = Action.activity_day(posts)
+        response = Action.activity_day(messages)
     elif content.startswith('!activity week'):
-        response = Action.activity_week(posts)
+        response = Action.activity_week(messages)
     elif content.startswith('!detail day'):
-        response = Action.detail_day(posts)
+        response = Action.detail_day(messages)
     elif content.startswith('!detail week'):
-        response = Action.detail_week(posts)
+        response = Action.detail_week(messages)
     elif 'min sok' in content:
         response = Action.min_sok()
     elif 'good shit' in content:
         response = Action.good_shit()
     elif 'dank' in content:
         response = Action.dank()
-    elif content.startswith('!test'):
-        response = Action.test(posts)
 
     if response is not None:
         tmp = await client.send_message(message.channel, 'Calculating messages...')

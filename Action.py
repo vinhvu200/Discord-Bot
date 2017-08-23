@@ -69,7 +69,7 @@ def interesting(reddit):
             break
         count = count + 1
 
-def record(posts, message, author, discord_bot, channel):
+def record(messages_collection, message, author, discord_bot, channel):
 
     if author == discord_bot:
         return
@@ -78,19 +78,20 @@ def record(posts, message, author, discord_bot, channel):
         if message == command:
             return
 
-    try:
+    post_data = {
+        'content' : str(message),
+        'author' : str(author),
+        'time' : datetime.datetime.utcnow(),
+        #'channel' : str(channel)
+        'channel' : 'skype'
+    }
 
-        post_data = {
-            'content' : str(message),
-            'author' : str(author),
-            'time' : datetime.datetime.utcnow(),
-            'channel' : str(channel)
-        }
-        posts.insert_one(post_data)
+    try:
+        messages_collection.insert_one(post_data)
     except Exception:
         return 'Vinhs an idiot. Command failed'
 
-def activity_day(posts):
+def activity_day(messages_collection):
 
     utc_end = datetime.datetime.utcnow()
     real_end = utc_end - datetime.timedelta(hours=7)
@@ -99,7 +100,7 @@ def activity_day(posts):
     real_start = real_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
 
     try:
-        query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
         return 'Could not retrieve from database. Vinh failed you'
 
@@ -127,7 +128,7 @@ def activity_day(posts):
         message += '{}   --   {}%\n'.format(name, round(percentage, 2))
     return message
 
-def activity_week(posts):
+def activity_week(messages_collection):
 
     utc_end = datetime.datetime.utcnow()
     real_end = utc_end - datetime.timedelta(hours=7)
@@ -136,7 +137,7 @@ def activity_week(posts):
     real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
 
     try:
-        query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
         return 'Could not retrieve from database. Vinh failed you'
 
@@ -172,7 +173,7 @@ def dank():
 def good_shit():
     return '10/10'
 
-def detail_day(posts):
+def detail_day(messages_collection):
 
     utc_end = datetime.datetime.utcnow()
     real_end = utc_end - datetime.timedelta(hours=7)
@@ -182,8 +183,9 @@ def detail_day(posts):
 
     messages = [0] * 24
     try:
-        query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception:
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+    except Exception as e:
+        print(e)
         return 'Could not retrieve from database. Vinh failed you'
 
     message_count = 0
@@ -206,7 +208,7 @@ def detail_day(posts):
 
     return message
 
-def detail_week(posts):
+def detail_week(messages_collection):
 
     utc_end = datetime.datetime.utcnow()
     real_end = utc_end - datetime.timedelta(hours=7)
@@ -217,7 +219,7 @@ def detail_week(posts):
     activities = OrderedDict()
 
     try:
-        query_results = posts.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
         return 'Could not retrieve from database. Vinh failed you'
 
