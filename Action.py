@@ -82,8 +82,7 @@ def record(messages_collection, message, author, discord_bot, channel):
         'content' : str(message),
         'author' : str(author),
         'time' : datetime.datetime.utcnow(),
-        #'channel' : str(channel)
-        'channel' : 'skype'
+        'channel' : str(channel)
     }
 
     try:
