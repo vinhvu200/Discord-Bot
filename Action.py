@@ -1,6 +1,7 @@
 import Lyrics
 import random
 import datetime
+import Util
 from collections import OrderedDict
 
 commands = {'!peter' : 'Lyrics',
@@ -209,19 +210,23 @@ def detail_day(messages_collection):
 
 def detail_week(messages_collection):
 
-    utc_end = datetime.datetime.utcnow()
-    real_end = utc_end - datetime.timedelta(hours=7)
+    #utc_end = datetime.datetime.utcnow()
+    #real_end = utc_end - datetime.timedelta(hours=7)
 
-    utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
-    real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
+    #utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
+    #real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
 
-    activities = OrderedDict()
+    # Get appropriate time range
+    interval = 'week'
+    utc_start, utc_end, real_start, real_end = Util.get_times(interval, 0)
 
+    # Attempt to query by dates
     try:
         query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
     except Exception:
         return 'Could not retrieve from database. Vinh failed you'
 
+    activities = OrderedDict()
     for query in query_results:
 
         time = query['time']
@@ -242,4 +247,105 @@ def detail_week(messages_collection):
     for day in activities:
         message += '{} -- {}\n'.format(day, activities[day])
 
+    return message
+
+
+def _activity_week(messages_collection, delta):
+
+    # Get appropriate time range
+    interval = 'week'
+    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
+
+    # Attempt to query by dates
+    try:
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+    except Exception:
+        return 'Could not retrieve from database. Vinh failed you'
+
+    # Get weekly activities
+    activities = Util.calculate_weekly_activities(query_results)
+
+    # Format Message
+    message = 'Message count: {}.{}.{} -- {}.{}.{}\n' \
+              '------------------------------\n'.format(real_start.month, real_start.day,
+                                                        real_start.year, real_end.month,
+                                                        real_end.day, real_end.year)
+    for day in activities:
+        message += '{} -- {}\n'.format(day, activities[day])
+
+    return message
+
+
+def _activity_week_percentage(messages_collection, delta):
+
+    # Get appropriate time range
+    interval = 'week'
+    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
+
+    # Attempt to query by dates
+    try:
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+    except Exception:
+        return 'Could not retrieve from database. Vinh failed you'
+
+    activities = Util.calculate_weekly_activities_percentage(query_results)
+
+    message = 'Activities between {}.{}.{} -- {}.{}.{}:\n' \
+              '----------------------------\n'.format(real_start.month, real_start.day,
+                                                      real_start.year, real_end.month,
+                                                      real_end.day, real_end.year)
+    for name, percentage in activities:
+        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
+    return message
+
+
+def _activity_day(messages_collection, delta):
+
+    # Get appropriate time range
+    interval = 'day'
+    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
+
+    # Attempt to query by dates
+    try:
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+    except Exception as e:
+        print(e)
+        return 'Could not retrieve from database. Vinh failed you'
+
+    # Get hourly activities
+    activities_by_hours = Util.calculate_daily_activities(query_results)
+
+    # Format message
+    message = 'Message count per hour for {} . {} . {}\n'.format(real_start.month,
+                                                                 real_start.day,
+                                                                 real_start.year)
+    for x in range(0, 24):
+        message += '\t{}:00   ---   {}\n'.format(x, activities_by_hours[x])
+
+    return message
+
+
+def _activity_day_percentage(messages_collection, delta):
+
+    # Get appropriate time range
+    interval = 'day'
+    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
+
+    # Attempt to query by dates
+    try:
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+    except Exception as e:
+        print(e)
+        return 'Could not retrieve from database. Vinh failed you'
+
+    # Calculate message count and activities with query_results
+    message_count, activities = Util.calculate_daily_activities_percentage(query_results)
+
+    # Format message
+    message = 'Activities for {} . {} . {}:\n' \
+              '----------------------------\n'.format(real_start.month,
+                                                      real_start.day,
+                                                      real_start.year)
+    for name, percentage in activities:
+        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
     return message

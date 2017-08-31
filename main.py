@@ -77,6 +77,14 @@ async def on_message(message):
         response = Action.good_shit()
     elif 'dank' in content:
         response = Action.dank()
+    elif content == '_ad':
+        response = Action._activity_day(messages, 0)
+    elif content == '_adp':
+        response = Action._activity_day_percentage(messages, 0)
+    elif content == '_aw':
+        response = Action._activity_week(messages, 0)
+    elif content == '_awp':
+        response = Action._activity_week_percentage(messages, 0)
 
     if response is not None:
         tmp = await client.send_message(message.channel, 'Calculating messages...')
