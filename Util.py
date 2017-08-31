@@ -14,8 +14,6 @@ def get_times(interval, delta):
         utc_start = utc_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
         real_start = real_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
 
-        print('Current : {} --- {}'.format(real_start, real_end))
-
         # Adjust utc time range with delta
         utc_end = utc_start - datetime.timedelta(days=delta - 1)
         utc_start = utc_start - datetime.timedelta(days=delta)
@@ -23,8 +21,6 @@ def get_times(interval, delta):
         # Adjust real time range with delta
         real_end = real_start - datetime.timedelta(days=delta - 1)
         real_start = real_start - datetime.timedelta(days=delta)
-
-        print('Adjusted : {} --- {}'.format(real_start, real_end))
 
     elif interval == 'week':
 
@@ -36,8 +32,6 @@ def get_times(interval, delta):
         utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
         real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
 
-        print('Current : {} --- {}'.format(real_start, real_end))
-
         # Adjust utc time range with delta
         utc_end = utc_start - datetime.timedelta(days=(delta - 1) * 7)
         utc_start = utc_start - datetime.timedelta(days=delta * 7)
@@ -46,7 +40,6 @@ def get_times(interval, delta):
         real_end = real_start - datetime.timedelta(days=(delta - 1) * 7)
         real_start = real_start - datetime.timedelta(days=delta * 7)
 
-        print('Adjusted : {} --- {}'.format(real_start, real_end))
     else:
         utc_start = utc_end = real_start = real_end = -1
 

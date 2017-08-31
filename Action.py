@@ -14,8 +14,8 @@ commands = {'!peter' : 'Lyrics',
             '!interesting' : 'Pulls up interesting facts for you',
             '!activity day' : 'Shows activities in last 24 hours',
             '!activity week' : 'Shows activities in last week',
-            '!detail day' : '',
-            '!detail week' : ''}
+            '!activity day percentage' : '',
+            '!activity week percentage' : ''}
 
 def help():
 
@@ -28,10 +28,10 @@ def help():
            '\t!will : Lyrical Genius\n' \
            '\t!graham : Lyrical Genius\n' \
            '\t!interesting : Interesting facts for you\n' \
-           '\t!activity day : Activities percentage in last 24 hours\n' \
-           '\t!activity week : Activities percentage in last week\n' \
-           '\t!detail day : Activities by hours of that day\n' \
-           '\t!detail week : Activities by days of the last week'
+           '\t!activity day : Activities in the current day\n' \
+           '\t!activity week : Activities in the current week\n' \
+           '\t!activity day percentage : Percentage of user\'s activity for current day\n' \
+           '\t!activity week percentage : Percentage of user\'s activity for last week'
 
 def peter():
     return Lyrics.Peter[random.randint(0, len(Lyrics.Peter)-1)]
@@ -91,215 +91,20 @@ def record(messages_collection, message, author, discord_bot, channel):
     except Exception:
         return 'Vinhs an idiot. Command failed'
 
-def activity_day(messages_collection):
-
-    utc_end = datetime.datetime.utcnow()
-    real_end = utc_end - datetime.timedelta(hours=7)
-
-    utc_start = utc_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
-    real_start = real_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
-
-    try:
-        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception:
-        return 'Could not retrieve from database. Vinh failed you'
-
-    message_count = 0
-    activities = dict()
-
-    for query in query_results:
-        message_count += 1
-        name = query['author']
-        if name in activities:
-            activities[name] += 1
-        else:
-            activities[name] = 1
-
-    for activity in activities:
-        activities[activity] = activities[activity] / message_count * 100
-    sorted_activities = [(activity, activities[activity]) for activity in
-                         sorted(activities, key=activities.get, reverse=True)]
-
-    message = 'Activities for {} . {} . {}:\n' \
-              '----------------------------\n'.format(real_start.month,
-                                                      real_start.day,
-                                                      real_start.year)
-    for name, percentage in sorted_activities:
-        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
-    return message
-
-def activity_week(messages_collection):
-
-    utc_end = datetime.datetime.utcnow()
-    real_end = utc_end - datetime.timedelta(hours=7)
-
-    utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
-    real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
-
-    try:
-        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception:
-        return 'Could not retrieve from database. Vinh failed you'
-
-    message_count = 0
-    activities = dict()
-    for query in query_results:
-        message_count += 1
-        name = query['author']
-        if name in activities:
-            activities[name] += 1
-        else:
-            activities[name] = 1
-
-    for activity in activities:
-        activities[activity] = activities[activity] / message_count * 100
-    sorted_activities = [(activity, activities[activity]) for activity in
-                         sorted(activities, key=activities.get, reverse=True)]
-
-    message = 'Activities between {}.{}.{} -- {}.{}.{}:\n' \
-              '----------------------------\n'.format(real_start.month, real_start.day,
-                                                      real_start.year, real_end.month,
-                                                      real_end.day, real_end.year)
-    for name, percentage in sorted_activities:
-        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
-    return message
 
 def min_sok():
     return "@Vinh#9804 heard min sok"
 
+
 def dank():
     return "D A N K"
+
 
 def good_shit():
     return '10/10'
 
-def detail_day(messages_collection):
 
-    utc_end = datetime.datetime.utcnow()
-    real_end = utc_end - datetime.timedelta(hours=7)
-
-    utc_start = utc_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
-    real_start = real_end - datetime.timedelta(hours=real_end.hour, minutes=real_end.minute)
-
-    messages = [0] * 24
-    try:
-        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception as e:
-        print(e)
-        return 'Could not retrieve from database. Vinh failed you'
-
-    message_count = 0
-    for query in query_results:
-
-        adjusted = 0
-        if query['time'].hour - 7 >= 0:
-            adjusted = query['time'].hour - 7
-        else:
-            adjusted = 24 + (query['time'].hour - 7)
-
-        messages[adjusted] += 1
-        message_count += 1
-
-    message = 'Message count per hour for {} . {} . {}\n'.format(real_start.month,
-                                                                 real_start.day,
-                                                                 real_start.year)
-    for x in range(0, 24):
-        message += '\t{}:00   ---   {}\n'.format(x, messages[x])
-
-    return message
-
-def detail_week(messages_collection):
-
-    #utc_end = datetime.datetime.utcnow()
-    #real_end = utc_end - datetime.timedelta(hours=7)
-
-    #utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
-    #real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
-
-    # Get appropriate time range
-    interval = 'week'
-    utc_start, utc_end, real_start, real_end = Util.get_times(interval, 0)
-
-    # Attempt to query by dates
-    try:
-        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception:
-        return 'Could not retrieve from database. Vinh failed you'
-
-    activities = OrderedDict()
-    for query in query_results:
-
-        time = query['time']
-        time = time - datetime.timedelta(hours=7)
-        day = '{} {} {}'.format(time.month, time.day, time.year)
-        string_day = datetime.datetime.strptime(day, '%m %d %Y').strftime('%A')
-
-        if string_day in activities:
-            activities[string_day] += 1
-        else:
-            activities[string_day] = 1
-
-    message = 'Message count: {}.{}.{} -- {}.{}.{}\n' \
-              '------------------------------\n'.format(real_start.month, real_start.day,
-                                                        real_start.year, real_end.month,
-                                                        real_end.day, real_end.year)
-
-    for day in activities:
-        message += '{} -- {}\n'.format(day, activities[day])
-
-    return message
-
-
-def _activity_week(messages_collection, delta):
-
-    # Get appropriate time range
-    interval = 'week'
-    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
-
-    # Attempt to query by dates
-    try:
-        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception:
-        return 'Could not retrieve from database. Vinh failed you'
-
-    # Get weekly activities
-    activities = Util.calculate_weekly_activities(query_results)
-
-    # Format Message
-    message = 'Message count: {}.{}.{} -- {}.{}.{}\n' \
-              '------------------------------\n'.format(real_start.month, real_start.day,
-                                                        real_start.year, real_end.month,
-                                                        real_end.day, real_end.year)
-    for day in activities:
-        message += '{} -- {}\n'.format(day, activities[day])
-
-    return message
-
-
-def _activity_week_percentage(messages_collection, delta):
-
-    # Get appropriate time range
-    interval = 'week'
-    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
-
-    # Attempt to query by dates
-    try:
-        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception:
-        return 'Could not retrieve from database. Vinh failed you'
-
-    activities = Util.calculate_weekly_activities_percentage(query_results)
-
-    message = 'Activities between {}.{}.{} -- {}.{}.{}:\n' \
-              '----------------------------\n'.format(real_start.month, real_start.day,
-                                                      real_start.year, real_end.month,
-                                                      real_end.day, real_end.year)
-    for name, percentage in activities:
-        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
-    return message
-
-
-def _activity_day(messages_collection, delta):
+def activity_day(messages_collection, delta):
 
     # Get appropriate time range
     interval = 'day'
@@ -325,7 +130,7 @@ def _activity_day(messages_collection, delta):
     return message
 
 
-def _activity_day_percentage(messages_collection, delta):
+def activity_day_percentage(messages_collection, delta):
 
     # Get appropriate time range
     interval = 'day'
@@ -346,6 +151,55 @@ def _activity_day_percentage(messages_collection, delta):
               '----------------------------\n'.format(real_start.month,
                                                       real_start.day,
                                                       real_start.year)
+    for name, percentage in activities:
+        message += '{}   --   {}%\n'.format(name, round(percentage, 2))
+    return message
+
+
+def activity_week(messages_collection, delta):
+
+    # Get appropriate time range
+    interval = 'week'
+    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
+
+    # Attempt to query by dates
+    try:
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+    except Exception:
+        return 'Could not retrieve from database. Vinh failed you'
+
+    # Get weekly activities
+    activities = Util.calculate_weekly_activities(query_results)
+
+    # Format Message
+    message = 'Message count: {}.{}.{} -- {}.{}.{}\n' \
+              '------------------------------\n'.format(real_start.month, real_start.day,
+                                                        real_start.year, real_end.month,
+                                                        real_end.day, real_end.year)
+    for day in activities:
+        message += '{} -- {}\n'.format(day, activities[day])
+
+    return message
+
+
+def activity_week_percentage(messages_collection, delta):
+
+    # Get appropriate time range
+    interval = 'week'
+    utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
+
+    # Attempt to query by dates
+    try:
+        query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
+    except Exception:
+        return 'Could not retrieve from database. Vinh failed you'
+
+    activities = Util.calculate_weekly_activities_percentage(query_results)
+
+    message = 'Activities between {}.{}.{} -- {}.{}.{}:\n' \
+              '----------------------------\n'.format(real_start.month, real_start.day,
+                                                      real_start.year, real_end.month,
+                                                      real_end.day, real_end.year)
     for name, percentage in activities:
         message += '{}   --   {}%\n'.format(name, round(percentage, 2))
     return message
