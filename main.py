@@ -15,35 +15,35 @@ link = f.readline()
 f.close()
 
 # Getting client
-reddit = praw.Reddit(client_id=client_id, client_secret=client_secret,
+reddit_client = praw.Reddit(client_id=client_id, client_secret=client_secret,
                      password=password, user_agent=user_agent,
                      username=username)
-client = discord.Client()
-client_2 = MongoClient(link)
-db = client_2.discord_data
+discord_client = discord.Client()
+mongo_client = MongoClient(link)
+db = mongo_client.discord_data
 messages = db.messages
 
-@client.event
+@discord_client.event
 async def on_ready():
     print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print(discord_client.user.name)
+    print(discord_client.user.id)
     print('------')
 
     #for server in client.servers:
     #    for channel in server.channels:
     #        print(channel)
 
-@client.event
+@discord_client.event
 async def on_message(message):
 
-    if message.author == client.user:
+    if message.author == discord_client.user:
         return
 
     content = message.content.lower()
     response = None
 
-    Action.record(messages, content, message.author, client.user, message.channel)
+    Action.record(messages, content, message.author, discord_client.user, message.channel)
 
     if content.startswith('!help'):
         response = Action.help()
@@ -62,7 +62,7 @@ async def on_message(message):
     elif content.startswith('!graham'):
         response = Action.graham()
     elif content.startswith('!interesting'):
-        response = Action.interesting(reddit)
+        response = Action.interesting(reddit_client)
     elif content == '!activity day':
         response = Action.activity_day(messages, 0)
     elif content == '!activity week':
@@ -79,7 +79,7 @@ async def on_message(message):
         response = Action.dank()
 
     if response is not None:
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        await client.edit_message(tmp, response)
+        tmp = await discord_client.send_message(message.channel, 'Calculating messages...')
+        await discord_client.edit_message(tmp, response)
 
-client.run(token)
+discord_client.run(token)

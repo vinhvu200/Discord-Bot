@@ -117,8 +117,12 @@ def activity_day(messages_collection, delta):
         print(e)
         return 'Could not retrieve from database. Vinh failed you'
 
-    # Get hourly activities
-    activities_by_hours = Util.calculate_daily_activities(query_results)
+    # If delta is 0, then you have to search for when the time is 'not yet recorded'
+    # Otherwise, all time will have been accounted for
+    if delta == 0:
+        activities_by_hours = Util.calculate_daily_activities(query_results, real_end.hour)
+    else:
+        activities_by_hours = Util.calculate_daily_activities(query_results, None)
 
     # Format message
     message = 'Message count per hour for {} . {} . {}\n'.format(real_start.month,
