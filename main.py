@@ -63,13 +63,13 @@ async def on_message(message):
         response = Action.graham()
     elif content.startswith('!interesting'):
         response = Action.interesting(reddit)
-    elif content.startswith('!activity day'):
+    elif content == '!activity day':
         response = Action.activity_day(messages, 0)
-    elif content.startswith('!activity week'):
+    elif content == '!activity week':
         response = Action.activity_week(messages, 0)
-    elif content.startswith('!activity day percentage'):
+    elif content == '!activity day percentage':
         response = Action.activity_day_percentage(messages, 0)
-    elif content.startswith('!activity week percentage'):
+    elif content == '!activity week percentage':
         response = Action.activity_week_percentage(messages, 0)
     elif 'min sok' in content:
         response = Action.min_sok()

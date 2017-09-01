@@ -157,7 +157,6 @@ def activity_day_percentage(messages_collection, delta):
 
 
 def activity_week(messages_collection, delta):
-
     # Get appropriate time range
     interval = 'week'
     utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)
@@ -165,7 +164,8 @@ def activity_week(messages_collection, delta):
     # Attempt to query by dates
     try:
         query_results = messages_collection.find({'time': {'$gte': utc_start, '$lt': utc_end}, 'channel': 'skype'})
-    except Exception:
+    except Exception as e:
+        print(e)
         return 'Could not retrieve from database. Vinh failed you'
 
     # Get weekly activities
@@ -183,7 +183,6 @@ def activity_week(messages_collection, delta):
 
 
 def activity_week_percentage(messages_collection, delta):
-
     # Get appropriate time range
     interval = 'week'
     utc_start, utc_end, real_start, real_end = Util.get_times(interval, delta)

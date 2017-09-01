@@ -24,13 +24,23 @@ def get_times(interval, delta):
 
     elif interval == 'week':
 
+        Days = {'Monday': 0,
+                'Tuesday': 1,
+                'Wednesday': 2,
+                'Thursday': 3,
+                'Friday': 4,
+                'Saturday': 5,
+                'Sunday': 6}
+
         # Calculate utc and real end time
         utc_end = datetime.datetime.utcnow()
         real_end = utc_end - datetime.timedelta(hours=7)
 
-        # Calculate utc and real start time
-        utc_start = utc_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
-        real_start = real_end - datetime.timedelta(days=6, hours=real_end.hour, minutes=real_end.minute)
+        day = '{} {} {}'.format(real_end.month, real_end.day, real_end.year)
+        string_day = datetime.datetime.strptime(day, '%m %d %Y').strftime('%A')
+
+        utc_start = utc_end - datetime.timedelta(days=Days[string_day], hours=real_end.hour, minutes=real_end.minute)
+        real_start = real_end - datetime.timedelta(days=Days[string_day], hours=real_end.hour, minutes=real_end.minute)
 
         # Adjust utc time range with delta
         utc_end = utc_start - datetime.timedelta(days=(delta - 1) * 7)
@@ -42,6 +52,8 @@ def get_times(interval, delta):
 
     else:
         utc_start = utc_end = real_start = real_end = -1
+
+
 
     return utc_start, utc_end, real_start, real_end
 
@@ -87,6 +99,14 @@ def calculate_daily_activities(query_results):
 def calculate_weekly_activities(query_results):
 
     activities = OrderedDict()
+    activities['Monday'] = None
+    activities['Tuesday'] = None
+    activities['Wednesday'] = None
+    activities['Thursday'] = None
+    activities['Friday'] = None
+    activities['Saturday'] = None
+    activities['Sunday'] = None
+
     for query in query_results:
 
         time = query['time']
@@ -94,10 +114,10 @@ def calculate_weekly_activities(query_results):
         day = '{} {} {}'.format(time.month, time.day, time.year)
         string_day = datetime.datetime.strptime(day, '%m %d %Y').strftime('%A')
 
-        if string_day in activities:
-            activities[string_day] += 1
-        else:
+        if activities[string_day] is None:
             activities[string_day] = 1
+        else:
+            activities[string_day] += 1
 
     return activities
 
