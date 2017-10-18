@@ -37,6 +37,8 @@ async def on_ready():
 @discord_client.event
 async def on_message(message):
 
+    print(messages)
+
     if message.author == discord_client.user:
         return
 
@@ -77,6 +79,16 @@ async def on_message(message):
         response = Action.good_shit()
     elif 'dank' in content:
         response = Action.dank()
+    elif 'achao' in content:
+        response = Action.peter2()
+    elif 'ashley' in content:
+        response = Action.peter2()
+    elif 'yeast' in content:
+        response = Action.peter3()
+    elif 'wallet' in content:
+        response = Action.vinh()
+    elif content.startswith('!roll'):
+        response = Action.roll(content)
 
     if response is not None:
         tmp = await discord_client.send_message(message.channel, 'Calculating messages...')

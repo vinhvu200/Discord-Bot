@@ -15,7 +15,8 @@ commands = {'!peter' : 'Lyrics',
             '!activity day' : 'Shows activities in last 24 hours',
             '!activity week' : 'Shows activities in last week',
             '!activity day percentage' : '',
-            '!activity week percentage' : ''}
+            '!activity week percentage' : '',
+            '!roll <insert number>' : ''}
 
 def help():
 
@@ -31,7 +32,9 @@ def help():
            '\t!activity day : Activities in the current day\n' \
            '\t!activity week : Activities in the current week\n' \
            '\t!activity day percentage : Percentage of user\'s activity for current day\n' \
-           '\t!activity week percentage : Percentage of user\'s activity for last week'
+           '\t!activity week percentage : Percentage of user\'s activity for last week\n' \
+           '\t!roll <number> : Roll a number between 1 and the number inclusive'
+
 
 def peter():
     return Lyrics.Peter[random.randint(0, len(Lyrics.Peter)-1)]
@@ -67,8 +70,8 @@ def interesting(reddit):
         if count == rand:
             prefix_index = count % 2
             return submission.title.replace('TIL', interesting_prefix[prefix_index])
-            break
         count = count + 1
+
 
 def record(messages_collection, message, author, discord_bot, channel):
 
@@ -93,7 +96,7 @@ def record(messages_collection, message, author, discord_bot, channel):
 
 
 def min_sok():
-    return "@Vinh#9804 heard min sok"
+    return "Vinh heard min sok"
 
 
 def dank():
@@ -206,3 +209,29 @@ def activity_week_percentage(messages_collection, delta):
     for name, percentage in activities:
         message += '{}   --   {}%\n'.format(name, round(percentage, 2))
     return message
+
+
+def peter2():
+
+    quotes = ['Peter ??',
+              'Y E A S T',
+              'Peter heard ashley']
+    return quotes[random.randint(0, len(quotes)-1)]
+
+
+def peter3():
+
+    quotes = ['Ashley?',
+              'Peter likes yeast?',
+              'Young YEAST']
+    return quotes[random.randint(0, len(quotes)-1)]
+
+
+def vinh():
+    return "Vinh ?"
+
+
+def roll(content):
+    content = content.replace('!roll ', '')
+    num = int(content)
+    return random.randint(1, num)
