@@ -1,13 +1,13 @@
 # Discord Bot
 
-Bot with some interesting commands...
+A normal bot that responds to user commands and store all the chat activities to be graphed out.
 
-Check out the graph at either:
-- http://54.202.140.35
-- http://ec2-54-202-140-35.us-west-2.compute.amazonaws.com/
-
-Repo for web app at:
+Repo for web app for the graph at:
 - https://github.com/vinhvu200/GraphDiscord
+
+# User Commands
+
+![Image 3](https://github.com/vinhvu200/Discord-Bot/raw/master/DemoImage/user_command.png "Image 3")
 
 # Graphs
 ![Image 3](https://github.com/vinhvu200/GraphDiscord/raw/master/DemoImages/image_3.png "Image 3")
